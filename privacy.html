@@ -14,23 +14,33 @@
   .logo span { color: #fff; font-size: 20px; font-weight: 700; }
   .brand { font-size: 24px; font-weight: 700; color: var(--text); }
   .brand em { color: var(--green); font-style: normal; }
+  .version-badge { display: inline-block; padding: 2px 8px; border-radius: 10px; font-size: 11px; font-weight: 600; color: var(--green); background: #f0fdf4; border: 1px solid #bbf7d0; margin-left: 8px; }
   h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
   .updated { font-size: 13px; color: var(--muted); margin-bottom: 32px; }
   h2 { font-size: 18px; font-weight: 600; color: var(--green); margin: 32px 0 12px; }
+  h3 { font-size: 15px; font-weight: 600; color: var(--text); margin: 20px 0 8px; }
   p { margin-bottom: 14px; font-size: 15px; }
   ul { margin: 0 0 14px 20px; }
   li { margin-bottom: 6px; font-size: 15px; }
   strong { color: var(--text); }
   .highlight { background: #f0fdf4; border-left: 3px solid var(--green); padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 16px 0; }
   .highlight p { margin-bottom: 0; font-size: 14px; }
+  .highlight-blue { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 14px 18px; border-radius: 0 8px 8px 0; margin: 16px 0; }
+  .highlight-blue p { margin-bottom: 0; font-size: 14px; }
   table { width: 100%; border-collapse: collapse; margin: 14px 0 20px; font-size: 14px; }
   th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); }
   th { background: #f8fafc; font-weight: 600; color: var(--muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.5px; }
   .no { color: #dc2626; font-weight: 600; }
   .yes { color: var(--green); font-weight: 600; }
+  .na { color: #3b82f6; font-weight: 600; }
   footer { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 13px; color: var(--muted); }
   a { color: var(--green); text-decoration: none; }
   a:hover { text-decoration: underline; }
+  code { background: #f1f5f9; padding: 1px 5px; border-radius: 3px; font-size: 13px; }
+  .changelog { background: #f8fafc; border: 1px solid var(--border); border-radius: 8px; padding: 16px; margin: 20px 0; }
+  .changelog h4 { font-size: 14px; margin-bottom: 8px; color: var(--muted); }
+  .changelog ul { margin: 0 0 0 16px; }
+  .changelog li { font-size: 13px; margin-bottom: 4px; }
 </style>
 </head>
 <body>
@@ -38,13 +48,24 @@
   <div class="header">
     <div class="logo"><span>P</span></div>
     <div class="brand">Page<em>Lens</em></div>
+    <span class="version-badge">v1.1.0</span>
   </div>
 
   <h1>隐私政策</h1>
-  <div class="updated">最后更新：2026 年 7 月 9 日</div>
+  <div class="updated">最后更新：2026 年 7 月 12 日 · 适用于 PageLens v1.1.0</div>
 
   <div class="highlight">
-    <p><strong>核心承诺：</strong>PageLens 不收集、不存储、不出售任何用户个人数据。页面内容仅在用户主动触发摘要时临时处理，API Key 本地加密保存。所有数据处理均在用户设备本地完成，或发送至用户自行选择和配置的 LLM API 服务。</p>
+    <p><strong>核心承诺：</strong>PageLens 不收集、不存储、不出售任何用户个人数据。页面内容仅在用户主动触发摘要时临时处理，API Key 本地加密保存。所有数据处理均在用户设备本地完成（内置 AI 模式），或发送至用户自行选择和配置的 LLM API 服务。</p>
+  </div>
+
+  <div class="changelog">
+    <h4>v1.1.0 隐私政策变更</h4>
+    <ul>
+      <li>新增 Chrome 内置 AI 说明：数据完全在本地处理，不离开设备</li>
+      <li>新增代理服务说明：免费模式下数据经 Cloudflare Worker 代理中转</li>
+      <li>新增本地配额追踪说明：使用次数仅存储在用户浏览器本地</li>
+      <li>更新 API 调用说明：区分三种引擎的数据处理方式</li>
+    </ul>
   </div>
 
   <h2>1. 概述</h2>
@@ -70,11 +91,36 @@
   <p>当用户主动点击扩展图标或点击"刷新"/"一键摘要"按钮时，本扩展通过 <code>chrome.scripting.executeScript</code> 在当前页面上下文中注入提取函数，读取页面的可见文本内容。提取的内容：</p>
   <ul>
     <li>仅在用户主动触发时执行，不会自动运行</li>
-    <li>提取后立即发送至用户配置的 LLM API，不在本地持久化存储</li>
+    <li>提取后根据用户选择的引擎发送至对应 AI 服务，不在本地持久化存储</li>
     <li>摘要生成完成后，页面原文内容不会被保留</li>
   </ul>
 
-  <h3>3.2 LLM API 请求</h3>
+  <h3>3.2 AI 引擎数据处理</h3>
+  <p>本扩展支持三种 AI 引擎，数据处理方式各不相同：</p>
+
+  <h4>3.2.1 Chrome 内置 AI（推荐）</h4>
+  <div class="highlight-blue">
+    <p><strong>隐私最优选：</strong>使用 Chrome 内置的 Gemini Nano 模型在本地运行 AI 推理，<strong>所有数据处理完全在用户设备上完成</strong>，不发送任何网络请求。</p>
+  </div>
+  <ul>
+    <li>通过 <code>chrome.languageModel</code> API（Chrome 138+ 扩展稳定 API）调用</li>
+    <li>页面内容仅在本地 GPU/CPU 上推理，不离开用户设备</li>
+    <li>AI 生成的摘要直接返回到扩展侧边栏</li>
+    <li>仅调用 <code>availability()</code> 检测可用性，不传输任何数据</li>
+    <li>不收集任何用户数据或模型使用信息</li>
+  </ul>
+
+  <h4>3.2.2 Gemini 云端免费额度</h4>
+  <p>提取的页面文本将通过 HTTPS 加密连接发送至 Cloudflare Worker 代理，由代理转发至 Google Gemini API。代理服务的处理方式：</p>
+  <ul>
+    <li>页面文本内容：直接转发至 Gemini API，<strong>代理不存储、不记录、不分析</strong></li>
+    <li>AI 生成的摘要：直接流式转发回客户端，代理不保留</li>
+    <li>用户 IP 地址：仅用于限流计数（<code>rate:{IP}:{date} → 计数</code>），24 小时后自动删除</li>
+    <li>API Key：存储在 Cloudflare Worker Secret 中，不暴露给客户端</li>
+    <li>代理不记录请求内容或响应</li>
+  </ul>
+
+  <h4>3.2.3 自定义 API Key</h4>
   <p>提取的页面文本将通过 HTTPS 加密连接发送至<strong>用户自行选择和配置</strong>的 LLM API 端点。本扩展支持的 LLM 提供商包括：</p>
   <ul>
     <li>OpenAI (api.openai.com)</li>
@@ -82,15 +128,25 @@
     <li>Google Gemini (generativelanguage.googleapis.com)</li>
     <li>DeepSeek (api.deepseek.com)</li>
   </ul>
-  <p>用户也可配置自定义 API 端点。本扩展不运营任何中间代理服务器，API 请求直接从用户浏览器发送至对应服务商。数据的使用受各 LLM 服务商自身隐私政策约束。</p>
+  <p>用户也可配置自定义 API 端点。API 请求直接从用户浏览器发送至对应服务商，数据的使用受各 LLM 服务商自身隐私政策约束。</p>
 
   <h3>3.3 API Key 存储</h3>
   <p>用户输入的 LLM API Key 使用 AES-GCM 算法加密后存储在 <code>chrome.storage.local</code> 中。加密密钥由用户设备生成，不以明文形式存储或传输。API Key 仅在发起 LLM API 请求时解密使用，不会发送至任何第三方服务器。</p>
 
-  <h3>3.4 用户偏好设置</h3>
+  <h3>3.4 本地配额追踪</h3>
+  <p>免费模式下，本扩展在本地记录每日使用次数，用于显示配额进度和避免超额请求：</p>
+  <ul>
+    <li>存储位置：<code>chrome.storage.local</code>，键 <code>freeTierQuota</code></li>
+    <li>存储内容：每日已用次数、限额、日期</li>
+    <li>数据仅存储在用户浏览器本地，不同步至云端，不传输到任何服务器</li>
+    <li>跨天后自动重置</li>
+  </ul>
+
+  <h3>3.5 用户偏好设置</h3>
   <p>以下设置信息存储在本地 <code>chrome.storage.local</code> 中，不会同步至云端：</p>
   <ul>
-    <li>选择的 LLM 提供商</li>
+    <li>选择的 LLM 提供商和接入模式</li>
+    <li>免费引擎偏好（自动/内置AI/Gemini云端）</li>
     <li>摘要语言偏好</li>
     <li>输出格式偏好（Markdown/纯文本/HTML）</li>
     <li>功能开关状态（流式输出、Markdown 渲染等）</li>
@@ -104,43 +160,60 @@
     <tr><td><code>activeTab</code></td><td>获取用户当前活动标签页信息，作为触发内容提取的入口</td></tr>
     <tr><td><code>scripting</code></td><td>通过 chrome.scripting.executeScript 动态注入内容提取函数到当前页面</td></tr>
     <tr><td><code>sidePanel</code></td><td>在浏览器侧边栏中展示摘要结果和设置界面</td></tr>
-    <tr><td><code>storage</code></td><td>本地保存用户设置和加密后的 API Key</td></tr>
+    <tr><td><code>storage</code></td><td>本地保存用户设置、配额数据和加密后的 API Key</td></tr>
+    <tr><td><code>notifications</code></td><td>摘要生成完成后发送浏览器通知提醒用户</td></tr>
   </table>
 
-  <h2>5. 第三方服务</h2>
-  <p>本扩展在用户配置 API Key 后，会与用户选择的 LLM 服务商进行通信。这些服务的隐私政策独立于本扩展：</p>
+  <h2>5. 数据处理方式对比</h2>
+  <table>
+    <tr><th>数据项</th><th>内置 AI</th><th>Gemini 免费代理</th><th>自定义 API Key</th></tr>
+    <tr><td>页面文本</td><td class="na">本地处理</td><td>经代理转发</td><td>直连服务商</td></tr>
+    <tr><td>AI 摘要</td><td class="na">本地生成</td><td>经代理返回</td><td>直连返回</td></tr>
+    <tr><td>IP 地址</td><td class="no">不涉及</td><td>限流用（24h删除）</td><td>服务商可见</td></tr>
+    <tr><td>网络请求</td><td class="no">无</td><td>代理 → Gemini</td><td>直连服务商</td></tr>
+    <tr><td>数据离开设备</td><td class="no">否</td><td class="yes">是</td><td class="yes">是</td></tr>
+  </table>
+
+  <h2>6. 第三方服务</h2>
+  <p>本扩展可能与以下第三方服务进行通信：</p>
   <ul>
+    <li><strong>Chrome 内置 AI</strong>（本地运行，无网络通信）</li>
+    <li><strong>Cloudflare Worker 代理</strong>（免费模式下中转请求至 Gemini API，代理不存储数据）</li>
     <li><a href="https://openai.com/privacy" target="_blank">OpenAI 隐私政策</a></li>
     <li><a href="https://www.anthropic.com/privacy" target="_blank">Anthropic 隐私政策</a></li>
     <li><a href="https://policies.google.com/privacy" target="_blank">Google 隐私政策</a></li>
     <li><a href="https://www.deepseek.com/privacy" target="_blank">DeepSeek 隐私政策</a></li>
   </ul>
 
-  <h2>6. 数据安全</h2>
+  <h2>7. 数据安全</h2>
   <p>本扩展采取以下措施保护用户数据：</p>
   <ul>
     <li>API Key 使用 AES-GCM 算法加密存储</li>
     <li>所有 LLM API 请求通过 HTTPS 加密传输</li>
-    <li>不运营任何中间代理服务器，API 请求直连服务商</li>
+    <li>内置 AI 模式下数据完全不离设备</li>
+    <li>代理服务不存储、不记录、不分析任何请求内容</li>
     <li>页面内容提取后不在本地持久化存储</li>
     <li>不使用任何第三方追踪或分析服务</li>
+    <li>配额数据仅存储在浏览器本地</li>
   </ul>
 
-  <h2>7. 儿童隐私</h2>
+  <h2>8. 儿童隐私</h2>
   <p>本扩展不面向 13 岁以下儿童，也不会 knowingly 收集儿童的个人信息。</p>
 
-  <h2>8. 数据控制权</h2>
+  <h2>9. 数据控制权</h2>
   <p>用户对自身数据拥有完全控制权：</p>
   <ul>
+    <li>用户可在设置中自由选择 AI 引擎（内置 AI / 免费云端 / 自定义 Key）</li>
+    <li>使用内置 AI 时，数据完全不离开用户设备</li>
     <li>用户可随时在扩展设置中删除 API Key</li>
     <li>卸载扩展将自动清除所有本地存储的数据</li>
-    <li>用户可选择不配置任何 API Key，此时扩展不发送任何网络请求</li>
+    <li>用户可选择不配置任何 API Key，此时仅使用免费模式或内置 AI</li>
   </ul>
 
-  <h2>9. 政策更新</h2>
+  <h2>10. 政策更新</h2>
   <p>如本隐私政策发生变更，我们将在此页面上更新"最后更新"日期。重大变更将通过扩展更新说明通知用户。</p>
 
-  <h2>10. 联系方式</h2>
+  <h2>11. 联系方式</h2>
   <p>如有关于本隐私政策的任何问题，请通过以下方式联系：</p>
   <ul>
     <li>GitHub Issues: <a href="https://github.com/fikard/pagelens/issues" target="_blank">https://github.com/fikard/pagelens/issues</a></li>
@@ -148,7 +221,7 @@
   </ul>
 
   <footer>
-    <p>&copy; 2026 PageLens. 本隐私政策适用于 PageLens — AI 智能网页摘要 Chrome 扩展。</p>
+    <p>&copy; 2026 PageLens. 本隐私政策适用于 PageLens — AI 智能网页摘要 Chrome 扩展 v1.1.0。</p>
   </footer>
 </div>
 </body>
